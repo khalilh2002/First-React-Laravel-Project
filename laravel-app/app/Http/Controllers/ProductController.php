@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Collection;
 
 class ProductController extends Controller
 {
-    function addProduct(Request $request) : JsonResponse
+    function addProduct(Request $request): JsonResponse
     {
         try {
             $p = new product();
@@ -22,19 +22,18 @@ class ProductController extends Controller
             if ($p == null) {
                 return response()->json([
                     "error" => "product has not been saved"
-                ],500);
-
+                ], 500);
             }
         } catch (Exception $th) {
-            
+
             return response()->json([
                 "error" => $th->getMessage()
-            ],500);
+            ], 500);
         }
 
         return response()->json([
             "ok" => "product saved"
-        ],200);
+        ], 200);
     }
 
     function listProduct(): Collection
@@ -42,7 +41,8 @@ class ProductController extends Controller
         return product::all();
     }
 
-    function deleteProduct($id) :JsonResponse    {
+    function deleteProduct($id): JsonResponse
+    {
         try {
             $product = Product::find($id);
 
@@ -62,7 +62,7 @@ class ProductController extends Controller
 
             if ($product->delete()) {
                 return response()->json([
-                    "ok"=>"Product has been deleted",
+                    "ok" => "Product has been deleted",
                     "message" => "Product has been deleted" . $msg,
                 ], 200);
             } else {
@@ -79,11 +79,52 @@ class ProductController extends Controller
         }
     }
 
-    function getProduct($id) {
+    function updateProduct(Request $request)
+    {
+        try {
+            $product = product::find($request->input('id'));
+            if ($product == null) {
+                return response()->json([
+                    'error' => "no found"
+                ], 404);
+            }
+
+            if (!empty($request->input('name'))) {
+                $product->name = $request->input('name');
+            }
+            
+            if (!empty($request->input('description'))) {
+                $product->description = $request->input('description');
+            }
+
+            if (!empty($request->file("file"))) {
+                if ($product->file_path !== null) {
+                    Storage::delete($product->file_path);
+                    $msg = " , image has been deleted";
+                }
+                $product->file_path = $request->file("file")->store('products');
+            }
+
+
+            $product->save();
+
+            return response()->json([
+                'ok' => "has been updated",
+                "message" => "the product has been updated"
+            ], 200);
+        } catch (Exception $th) {
+            return response()->json([
+                'error' => $th->getMessage()
+            ], 500);
+        }
+    }
+
+    function getProduct($id)
+    {
         $product = Product::find($id);
 
         if (!$product) {
-            return response()->json(['error' =>"error",'message' => 'Product not found'], 404);
+            return response()->json(['error' => "error", 'message' => 'Product not found'], 404);
         }
 
         return response()->json($product, 200);

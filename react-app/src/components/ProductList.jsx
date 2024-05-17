@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
-import Header from "./Header";
 import { Card, Col, Row } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
+import Header from "./Header";
+import Update from "./UpdateProduct";
+
 
 function ProductList() {
   const [products, setProducts] = useState([]);
@@ -43,6 +45,7 @@ function ProductList() {
     }
   }
 
+ 
   return (
     <div>
       <Header />
@@ -57,6 +60,8 @@ function ProductList() {
               <div className="card-body  text-center">
                 <h3 >{item.name}</h3>
                 <a onClick={()=>{deleteItem(item.id)}} className="btn btn-sm btn-danger">Delete</a>
+                <Update id={item.id}>
+                </Update>
               </div>
             </Card>
           </Col>
